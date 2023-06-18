@@ -1,0 +1,81 @@
+step "create-api-gateway" {
+    name = "Create API Gateway"
+
+    action {
+        action_type = "Octopus.AwsRunCloudFormation"
+        properties = {
+            Octopus.Action.Aws.AssumeRole = "False"
+            Octopus.Action.Aws.CloudFormation.Tags = "[{\"key\":\"OctopusTenantId\",\"value\":\"#{if Octopus.Deployment.Tenant.Id}#{Octopus.Deployment.Tenant.Id}#{/if}#{unless Octopus.Deployment.Tenant.Id}untenanted#{/unless}\"},{\"key\":\"OctopusStepId\",\"value\":\"#{Octopus.Step.Id}\"},{\"key\":\"OctopusRunbookRunId\",\"value\":\"#{if Octopus.RunBookRun.Id}#{Octopus.RunBookRun.Id}#{/if}#{unless Octopus.RunBookRun.Id}none#{/unless}\"},{\"key\":\"OctopusDeploymentId\",\"value\":\"#{if Octopus.Deployment.Id}#{Octopus.Deployment.Id}#{/if}#{unless Octopus.Deployment.Id}none#{/unless}\"},{\"key\":\"OctopusProjectId\",\"value\":\"#{Octopus.Project.Id}\"},{\"key\":\"OctopusEnvironmentId\",\"value\":\"#{Octopus.Environment.Id}\"},{\"key\":\"Environment\",\"value\":\"#{Octopus.Environment.Name}\"},{\"key\":\"DeploymentProject\",\"value\":\"#{Octopus.Project.Name}\"}]"
+            Octopus.Action.Aws.CloudFormationStackName = "#{AWS.CloudFormation.ApiGatewayStack}"
+            Octopus.Action.Aws.CloudFormationTemplate = <<-EOT
+                Resources:
+                  RestApi:
+                    Type: 'AWS::ApiGateway::RestApi'
+                    Properties:
+                      Description: Octopus Lambda Gateway
+                      Name: Octopub
+                      BinaryMediaTypes:
+                        - '*/*'
+                      EndpointConfiguration:
+                        Types:
+                          - REGIONAL
+                  Health:
+                    Type: 'AWS::ApiGateway::Resource'
+                    Properties:
+                      RestApiId:
+                        Ref: RestApi
+                      ParentId:
+                        'Fn::GetAtt':
+                          - RestApi
+                          - RootResourceId
+                      PathPart: health
+                  Api:
+                    Type: 'AWS::ApiGateway::Resource'
+                    Properties:
+                      RestApiId:
+                        Ref: RestApi
+                      ParentId:
+                        'Fn::GetAtt':
+                          - RestApi
+                          - RootResourceId
+                      PathPart: api
+                  Web:
+                    Type: 'AWS::ApiGateway::Resource'
+                    Properties:
+                      RestApiId: !Ref RestApi
+                      ParentId: !GetAtt
+                        - RestApi
+                        - RootResourceId
+                      PathPart: '{proxy+}'
+                Outputs:
+                  RestApi:
+                    Description: The REST API
+                    Value: !Ref RestApi
+                  RootResourceId:
+                    Description: ID of the resource exposing the root resource id
+                    Value:
+                      'Fn::GetAtt':
+                        - RestApi
+                        - RootResourceId
+                  Health:
+                    Description: ID of the resource exposing the health endpoints
+                    Value: !Ref Health
+                  Api:
+                    Description: ID of the resource exposing the api endpoint
+                    Value: !Ref Api
+                  Web:
+                    Description: ID of the resource exposing the web app frontend
+                    Value: !Ref Web
+                
+                EOT
+            Octopus.Action.Aws.CloudFormationTemplateParameters = "[]"
+            Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[]"
+            Octopus.Action.Aws.Region = "#{AWS.Region}"
+            Octopus.Action.Aws.TemplateSource = "Inline"
+            Octopus.Action.Aws.WaitForCompletion = "True"
+            Octopus.Action.AwsAccount.UseInstanceRole = "False"
+            Octopus.Action.AwsAccount.Variable = "AWS.Account"
+        }
+        worker_pool = "hosted-ubuntu"
+    }
+}
