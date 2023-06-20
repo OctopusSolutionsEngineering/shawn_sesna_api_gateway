@@ -80,3 +80,17 @@ step "create-api-gateway" {
         worker_pool = "hosted-ubuntu"
     }
 }
+
+step "display-rest-api-id" {
+    name = "Display REST API ID"
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.Script.ScriptBody = "echo \"REST API ID: #{Octopus.Action[Create API Gateway].Output.AwsOutputs[RestApi]}\""
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+        }
+        worker_pool = "hosted-ubuntu"
+    }
+}
