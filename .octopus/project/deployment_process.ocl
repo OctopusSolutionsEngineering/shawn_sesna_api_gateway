@@ -14,7 +14,7 @@ step "create-api-gateway" {
                     Type: 'AWS::ApiGateway::RestApi'
                     Properties:
                       Description: Octopus Lambda Gateway
-                      Name: Octopub
+                      Name: 'Octopub - #{Octopus.Space.Name}'
                       BinaryMediaTypes:
                         - '*/*'
                       EndpointConfiguration:
