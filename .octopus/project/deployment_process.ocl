@@ -51,20 +51,6 @@ step "check-for-updates" {
     }
 }
 
-step "fail" {
-    name = "Fail"
-
-    action {
-        action_type = "Octopus.Script"
-        properties = {
-            Octopus.Action.Script.ScriptBody = "exit 1"
-            Octopus.Action.Script.ScriptSource = "Inline"
-            Octopus.Action.Script.Syntax = "Bash"
-        }
-        worker_pool = "hosted-ubuntu"
-    }
-}
-
 step "create-api-gateway" {
     name = "Create API Gateway"
 
