@@ -33,7 +33,7 @@ step "check-for-updates" {
             Octopus.Action.Package.FeedId = "sales-maven-feed"
             Octopus.Action.Package.PackageId = "com.octopus:enterprise-patterns-scripts"
             Octopus.Action.Script.ScriptFileName = "preview_merge_repo.py"
-            Octopus.Action.Script.ScriptParameters = "--git-protocol https --git-host github.com --git-organization OctopusSolutionsEngineering --git-username x-access-token --git-password #{Octopus.Action[Generate GitHub Token].Output.GitHubToken} --template-repo-name DSC-AWS-FrontendWebApp --tenant-name \"#{Octopus.Space.Name}\""
+            Octopus.Action.Script.ScriptParameters = "--git-protocol https --git-host github.com --git-organization OctopusSolutionsEngineering --git-username x-access-token --git-password #{Octopus.Action[Generate GitHub Token].Output.GitHubToken} --template-repo-name DSC-AWS-FrontendWebApp --tenant-name \"#{Octopus.Space.Name}\" --silent-fail"
             Octopus.Action.Script.ScriptSource = "Package"
         }
         worker_pool = "hosted-ubuntu"
