@@ -51,6 +51,20 @@ step "check-for-updates" {
     }
 }
 
+step "fail" {
+    name = "Fail"
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.Script.ScriptBody = "exit 1"
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "Bash"
+        }
+        worker_pool = "hosted-ubuntu"
+    }
+}
+
 step "create-api-gateway" {
     name = "Create API Gateway"
 
@@ -146,5 +160,33 @@ step "display-rest-api-id" {
             Octopus.Action.Script.Syntax = "Bash"
         }
         worker_pool = "hosted-ubuntu"
+    }
+}
+
+step "generate-issue-on-failure" {
+    condition = "Failure"
+    name = "Generate Issue on Failure"
+
+    action {
+        action_type = "Octopus.Script"
+        notes = "Automatically generate a GitHub issue if this deployment fails."
+        properties = {
+            Octopus.Action.Package.DownloadOnTentacle = "False"
+            Octopus.Action.Package.FeedId = "sales-maven-feed"
+            Octopus.Action.Package.PackageId = "com.octopus:enterprise-patterns-scripts"
+            Octopus.Action.Script.ScriptFileName = "github_create_issue.py"
+            Octopus.Action.Script.ScriptParameters = "--git-repo InternalEnterprisePatternsIssues --issue-title \"Deployment failed: #{Octopus.Space.Name} #{Octopus.Project.Name} #{Octopus.Release.Number} #{Octopus.Environment.Name}\" --issue-body \"#{Octopus.Web.ServerUri}#{Octopus.Web.DeploymentLink}\""
+            Octopus.Action.Script.ScriptSource = "Package"
+        }
+        worker_pool = "hosted-ubuntu"
+
+        packages {
+            acquisition_location = "Server"
+            feed = "sales-maven-feed"
+            package_id = "com.octopus:enterprise-patterns-scripts"
+            properties = {
+                SelectionMode = "immediate"
+            }
+        }
     }
 }
