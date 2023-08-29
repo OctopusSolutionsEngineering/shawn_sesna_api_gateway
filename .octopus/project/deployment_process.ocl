@@ -127,7 +127,7 @@ step "create-api-gateway" {
                     Description: ID of the resource exposing the web app frontend
                     Value: !Ref Web
                 
-                    EOT
+                EOT
             Octopus.Action.Aws.CloudFormationTemplateParameters = "[]"
             Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
@@ -180,5 +180,19 @@ step "generate-issue-on-failure" {
                 SelectionMode = "immediate"
             }
         }
+    }
+}
+
+step "run-a-script" {
+    name = "Run a Script"
+
+    action {
+        action_type = "Octopus.Script"
+        properties = {
+            Octopus.Action.Script.ScriptBody = "Write-Host \"I'm a message!!\""
+            Octopus.Action.Script.ScriptSource = "Inline"
+            Octopus.Action.Script.Syntax = "PowerShell"
+        }
+        worker_pool = "hosted-windows"
     }
 }
