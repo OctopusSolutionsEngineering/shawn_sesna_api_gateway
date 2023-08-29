@@ -127,7 +127,7 @@ step "create-api-gateway" {
                     Description: ID of the resource exposing the web app frontend
                     Value: !Ref Web
                 
-                EOT
+                    EOT
             Octopus.Action.Aws.CloudFormationTemplateParameters = "[]"
             Octopus.Action.Aws.CloudFormationTemplateParametersRaw = "[]"
             Octopus.Action.Aws.Region = "#{AWS.Region}"
